@@ -16,6 +16,9 @@ import android.widget.Toast;
 
 import com.acrcloud.rec.*;
 import com.acrcloud.rec.utils.ACRCloudLogger;
+import com.chaquo.python.PyObject;
+import com.chaquo.python.Python;
+import com.chaquo.python.android.AndroidPlatform;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -204,15 +207,26 @@ public class MainActivity extends AppCompatActivity implements IACRCloudListener
 
     // callback IACRCloudRadioMetadataListener
     public void requestRadioMetadata() {
-        String lat = "39.98";
-        String lng = "116.29";
-        List<String> freq = new ArrayList<>();
-        freq.add("88.7");
-        if (!this.mClient.requestRadioMetadataAsyn(lat, lng, freq,
-                ACRCloudConfig.RadioType.FM, this)) {
-            String str = this.getString(R.string.error);
-            Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
+        System.out.println("test func");
+        // PyObject pyObject = Python.getInstance().getModule("my_file").callAttr("my_function", arg1, arg2);
+        if (! Python.isStarted()) {
+            Python.start(new AndroidPlatform(this));
         }
+        Python py = Python.getInstance();
+        PyObject pyobj = py.getModule("testing_python");
+        PyObject obj = pyobj.callAttr("main");
+
+        System.out.println(obj.toString());
+
+        //        String lat = "39.98";
+//        String lng = "116.29";
+//        List<String> freq = new ArrayList<>();
+//        freq.add("88.7");
+//        if (!this.mClient.requestRadioMetadataAsyn(lat, lng, freq,
+//                ACRCloudConfig.RadioType.FM, this)) {
+//            String str = this.getString(R.string.error);
+//            Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
+//        }
     }
 
     public void reset() {
@@ -268,6 +282,8 @@ public class MainActivity extends AppCompatActivity implements IACRCloudListener
 
         mResult.setText(tres);
         startTime = System.currentTimeMillis();
+
+        System.out.println("Finding song lyrics...");
     }
 
     @Override
