@@ -26,6 +26,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements IACRCloudListener, IACRCloudRadioMetadataListener {
@@ -207,27 +208,17 @@ public class MainActivity extends AppCompatActivity implements IACRCloudListener
 
     // callback IACRCloudRadioMetadataListener
     public void requestRadioMetadata() {
-        System.out.println("test func");
-        // PyObject pyObject = Python.getInstance().getModule("my_file").callAttr("my_function", arg1, arg2);
-        if (! Python.isStarted()) {
-            Python.start(new AndroidPlatform(this));
+        String lat = "39.98";
+        String lng = "116.29";
+        List<String> freq = new ArrayList<>();
+        freq.add("88.7");
+        if (!this.mClient.requestRadioMetadataAsyn(lat, lng, freq,
+                ACRCloudConfig.RadioType.FM, this)) {
+            String str = this.getString(R.string.error);
+            Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
         }
-        Python py = Python.getInstance();
-        PyObject pyobj = py.getModule("testing_python");
-        PyObject obj = pyobj.callAttr("main");
-
-        System.out.println(obj.toString());
-
-        //        String lat = "39.98";
-//        String lng = "116.29";
-//        List<String> freq = new ArrayList<>();
-//        freq.add("88.7");
-//        if (!this.mClient.requestRadioMetadataAsyn(lat, lng, freq,
-//                ACRCloudConfig.RadioType.FM, this)) {
-//            String str = this.getString(R.string.error);
-//            Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
-//        }
     }
+
 
     public void reset() {
         tv_time.setText("");
@@ -252,27 +243,41 @@ public class MainActivity extends AppCompatActivity implements IACRCloudListener
 
         String tres = "\n";
 
+        // TODO: Null here is no good. Update this at some point
+        String title = null;
+        String artist = null;
+
         try {
             JSONObject j = new JSONObject(result);
             JSONObject j1 = j.getJSONObject("status");
             int j2 = j1.getInt("code");
-            if(j2 == 0){
+            if(j2 == 0) {
                 JSONObject metadata = j.getJSONObject("metadata");
-                //
                 if (metadata.has("music")) {
                     JSONArray musics = metadata.getJSONArray("music");
                     for(int i=0; i<musics.length(); i++) {
                         JSONObject tt = (JSONObject) musics.get(i);
-                        String title = tt.getString("title");
+                        title = tt.getString("title");
                         JSONArray artistt = tt.getJSONArray("artists");
                         JSONObject art = (JSONObject) artistt.get(0);
-                        String artist = art.getString("name");
+                        artist = art.getString("name");
                         tres = tres + (i+1) + ".  Title: " + title + "    Artist: " + artist + "\n";
                     }
                 }
 
+                // TODO: Realistically this should be containted to a seperate function. The output of this function (artist and track_name)
+                //       Should be passed into getLyrics() and then displayed by displayLyrics()
+                // Get lyrics
+                if (! Python.isStarted()) {
+                    Python.start(new AndroidPlatform(this));
+                }
+                Python py = Python.getInstance();
+                PyObject pyobj = py.getModule("lyrics");
+                PyObject obj = pyobj.callAttr("main", artist, title);
+                mResult.setText(obj.toString());
+
                 tres = tres + "\n\n" + result;
-            }else{
+            } else {
                 tres = result;
             }
         } catch (JSONException e) {
@@ -280,10 +285,9 @@ public class MainActivity extends AppCompatActivity implements IACRCloudListener
             e.printStackTrace();
         }
 
-        mResult.setText(tres);
+        //mResult.setText(tres);
+        System.out.println(tres);
         startTime = System.currentTimeMillis();
-
-        System.out.println("Finding song lyrics...");
     }
 
     @Override
