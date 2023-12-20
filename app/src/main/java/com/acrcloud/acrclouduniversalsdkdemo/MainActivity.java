@@ -265,7 +265,7 @@ public class MainActivity extends AppCompatActivity implements IACRCloudListener
                     }
                 }
 
-                // TODO: Realistically this should be containted to a seperate function. The output of this function (artist and track_name)
+                // TODO: Realistically this should be contained to a separate function. The output of this function (artist and track_name)
                 //       Should be passed into getLyrics() and then displayed by displayLyrics()
                 // Get lyrics
                 if (! Python.isStarted()) {
@@ -274,8 +274,12 @@ public class MainActivity extends AppCompatActivity implements IACRCloudListener
                 Python py = Python.getInstance();
                 PyObject pyobj = py.getModule("lyrics");
                 PyObject obj = pyobj.callAttr("main", artist, title);
+
+                // TODO: Implement error handling for when lyrics DO NOT exist......
+                // Print lyrics to app......
                 mResult.setText(obj.toString());
 
+                // Parse title and artist
                 tres = tres + "\n\n" + result;
             } else {
                 tres = result;
@@ -285,8 +289,9 @@ public class MainActivity extends AppCompatActivity implements IACRCloudListener
             e.printStackTrace();
         }
 
-        //mResult.setText(tres);
+        System.out.println("*************** acrcloud output: ***************");
         System.out.println(tres);
+        System.out.println("*************** acrcloud output: ***************");
         startTime = System.currentTimeMillis();
     }
 

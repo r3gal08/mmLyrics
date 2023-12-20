@@ -2,7 +2,7 @@
 # 1/24/18
 
 # musixmatch api base url
-base_url = "xxxxxx"
+base_url = "http://api.musixmatch.com/ws/1.1/"
 
 # your api key
 api_key = "&apikey=xxxxxx"

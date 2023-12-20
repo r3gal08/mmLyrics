@@ -11,6 +11,8 @@ def main(artist,track):
     # Parse arguments
     artist_name = str(artist)
     track_name  = str(track)
+    #artist_name = "MF DOOM"
+    #track_name  = "Doomsday"
 
     # Make API call. Get Data
     api_call = base_url + lyrics_matcher + format_url + artist_search_parameter + artist_name + track_search_parameter + track_name + api_key
@@ -21,8 +23,9 @@ def main(artist,track):
     #print()
     #print(data['lyrics']['lyrics_body'])
 
+    # TODO: Implement error handling for when lyrics DO NOT exist......
     return data['lyrics']['lyrics_body']
 
 
-#if __name__ == '__main__':
-#    main()
+if __name__ == '__main__':
+    main()
